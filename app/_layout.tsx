@@ -1,13 +1,13 @@
-import { Text, View } from "react-native";
-import React, { Component } from "react";
-import { Stack } from "expo-router";
+import React from 'react';
+import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
 
-const RootLayout = () => {
+export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#000' }}>
+      <Stack screenOptions={{ headerShown: false }} />
+      <StatusBar style="light" />
+    </GestureHandlerRootView>
   );
-};
-
-export default RootLayout;
+}
