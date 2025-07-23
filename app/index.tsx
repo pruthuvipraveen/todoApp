@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   TextInput,
@@ -7,11 +7,14 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import * as Notifications from 'expo-notifications';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import chrono from 'chrono-node';
-import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
+} from "react-native";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { parseDate } from "chrono-node";
+import {
+  Swipeable,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 
 interface Task {
   id: string;
@@ -22,48 +25,52 @@ interface Task {
 
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   useEffect(() => {
     loadTasks();
     Notifications.requestPermissionsAsync();
     Notifications.setNotificationHandler({
-      handleNotification: async () => ({ shouldShowAlert: true, shouldPlaySound: false, shouldSetBadge: false }),
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
     });
   }, []);
 
   const loadTasks = async () => {
     try {
-      const data = await AsyncStorage.getItem('tasks');
+      const data = await AsyncStorage.getItem("tasks");
       if (data) {
         const saved: Task[] = JSON.parse(data);
         const today = todayKey();
         const todays = saved.filter((t) => t.date === today);
         if (todays.length !== saved.length) {
-          await AsyncStorage.setItem('tasks', JSON.stringify(todays));
+          await AsyncStorage.setItem("tasks", JSON.stringify(todays));
         }
         setTasks(todays);
       }
     } catch (e) {
-      console.error('Load error', e);
+      console.error("Load error", e);
     }
   };
 
   const saveTasks = async (list: Task[]) => {
     setTasks(list);
     try {
-      await AsyncStorage.setItem('tasks', JSON.stringify(list));
+      await AsyncStorage.setItem("tasks", JSON.stringify(list));
     } catch (e) {
-      console.error('Save error', e);
+      console.error("Save error", e);
     }
   };
 
   const addTask = async () => {
     if (!input.trim()) return;
-    const date = chrono.parseDate(input);
+    const date = parseDate(input);
     if (date && date.getTime() > Date.now()) {
       await Notifications.scheduleNotificationAsync({
-        content: { title: 'MonoTask Reminder', body: input.trim() },
+        content: { title: "MonoTask Reminder", body: input.trim() },
         trigger: date,
       });
     }
@@ -75,7 +82,7 @@ export default function Home() {
     };
     const list = [newTask, ...tasks];
     await saveTasks(list);
-    setInput('');
+    setInput("");
   };
 
   const deleteTask = async (id: string) => {
@@ -102,7 +109,7 @@ export default function Home() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <FlatList
           data={tasks}
@@ -124,30 +131,30 @@ export default function Home() {
   );
 }
 
-const todayKey = () => new Date().toISOString().split('T')[0];
+const todayKey = () => new Date().toISOString().split("T")[0];
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000', padding: 20 },
+  container: { flex: 1, backgroundColor: "#000", padding: 20 },
   list: { flexGrow: 1 },
   input: {
-    borderColor: '#333',
+    borderColor: "#333",
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
   },
   taskRow: {
     paddingVertical: 14,
-    borderBottomColor: '#1a1a1a',
+    borderBottomColor: "#1a1a1a",
     borderBottomWidth: 1,
   },
-  taskText: { color: '#fff', fontSize: 18 },
+  taskText: { color: "#fff", fontSize: 18 },
   deleteBox: {
-    backgroundColor: '#1a1a1a',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    backgroundColor: "#1a1a1a",
+    justifyContent: "center",
+    alignItems: "flex-end",
     paddingHorizontal: 20,
   },
-  deleteText: { color: '#fff' },
+  deleteText: { color: "#fff" },
 });
